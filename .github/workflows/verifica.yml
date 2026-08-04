@@ -1,0 +1,52 @@
+# =============================================================================
+# Controllo automatico a ogni push.
+#
+# Serve soprattutto a intercettare un errore silenzioso: le pagine .html sono
+# generate da build.js, ma vanno committate perché GitHub Pages non esegue
+# niente. Se modifichi data.js e dimentichi `npm run build`, online resta la
+# versione vecchia e non se ne accorge nessuno finché non lo nota un cliente.
+#
+# Qui le pagine vengono rigenerate: se il risultato è diverso da quello che hai
+# committato, il controllo fallisce e te lo dice.
+# =============================================================================
+
+name: Verifica il sito
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verifica:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Nessun `npm ci`: il progetto non ha dipendenze.
+
+      - name: Rigenera le pagine
+        run: npm run build
+
+      - name: I file generati erano aggiornati?
+        run: |
+          CAMBIATI="$(git status --porcelain)"
+          if [ -n "$CAMBIATI" ]; then
+            echo "::error::Le pagine generate non erano aggiornate. Lancia 'npm run build' e committa il risultato."
+            echo ""
+            echo "File che il build ha cambiato:"
+            echo "$CAMBIATI"
+            echo ""
+            echo "Differenze:"
+            git --no-pager diff
+            exit 1
+          fi
+          echo "Tutto aggiornato."
+
+      - name: Controlli sulle pagine
+        run: node scripts/verifica.js

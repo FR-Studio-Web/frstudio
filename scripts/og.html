@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!-- ===========================================================================
+     SORGENTE DELL'IMMAGINE DI ANTEPRIMA (assets/img/og.png)
+     ---------------------------------------------------------------------------
+     È l'immagine che compare quando qualcuno incolla il link del sito su
+     WhatsApp, Facebook o LinkedIn. Senza, resta un rettangolo vuoto.
+
+     Per rigenerarla dopo una modifica:
+       1. npm run dev
+       2. apri  http://localhost:3000/scripts/og.html
+       3. DevTools → Ctrl+Shift+M, imposta 1200 × 630, zoom 100%
+       4. Ctrl+Shift+P → "Capture screenshot"
+       5. salva il file come assets/img/og.png
+     =========================================================================== -->
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>FR Studio — immagine di anteprima</title>
+<link rel="stylesheet" href="../assets/css/site.css">
+<style>
+  html, body { margin: 0; padding: 0; background: #FFF; }
+
+  .og {
+    box-sizing: border-box;
+    width: 1200px;
+    height: 630px;
+    padding: 64px 72px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  .og__testa { display: flex; align-items: baseline; justify-content: space-between; gap: 32px; }
+  .og__marchio {
+    font-family: var(--sans);
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .og__luogo {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .og__titolo {
+    margin: 0;
+    max-width: 21ch;
+    font-family: var(--sans);
+    font-size: 62px;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    color: var(--ink);
+  }
+  .og__titolo em { font-style: normal; color: var(--accent); }
+
+  .og__piede { display: flex; gap: 0; border-top: 1px solid var(--ink); padding-top: 26px; }
+  .og__voce {
+    flex: 1 1 0;
+    padding-right: 28px;
+    border-right: 1px solid var(--rule);
+  }
+  .og__voce:last-child { border-right: none; padding-right: 0; }
+  .og__voce + .og__voce { padding-left: 28px; }
+  .og__voce-titolo {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .og__voce-nota {
+    margin-top: 4px;
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="og">
+
+  <div class="og__testa">
+    <span class="og__marchio">FR Studio</span>
+    <span class="og__luogo">Scandiano · Reggio Emilia</span>
+  </div>
+
+  <h1 class="og__titolo">Siti web per le attività locali.<br><em>Vedi la demo prima di decidere.</em></h1>
+
+  <div class="og__piede">
+    <div class="og__voce">
+      <p class="og__voce-titolo">Zero anticipo</p>
+      <p class="og__voce-nota">Paghi solo se ti piace</p>
+    </div>
+    <div class="og__voce">
+      <p class="og__voce-titolo">Demo in 5 giorni</p>
+      <p class="og__voce-nota">Te la portiamo su tablet</p>
+    </div>
+    <div class="og__voce">
+      <p class="og__voce-titolo">Assistenza in paese</p>
+      <p class="og__voce-nota">Un referente, sempre lo stesso</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

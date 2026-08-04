@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# NOTA: i file .html in radice, assets/js/dati.js, sitemap.xml, robots.txt e
+# CNAME sono GENERATI da build.js — ma vanno comunque COMMITTATI: GitHub Pages
+# pubblica i file così come stanno nel repository, senza eseguire nulla.
+# Lo stesso vale per assets/fonts/*.woff2 e assets/img/og.png.
+#
+# Se li modifichi a mano vengono sovrascritti al build successivo, e il
+# controllo automatico su GitHub te lo segnala (.github/workflows/verifica.yml).

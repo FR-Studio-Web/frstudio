@@ -4,6 +4,44 @@
    bosco, filetti da 1px, nessuna ombra, nessun gradiente.
    ========================================================================== */
 
+/* --------------------------------------------------------------- caratteri */
+
+/* Ospitati insieme al sito: nessuna richiesta a Google, quindi una connessione
+   esterna in meno da aprire prima di disegnare il testo e nessun indirizzo IP
+   dei visitatori che esce di qui. Si aggiornano con `npm run fonts`.
+   Sono file variabili: un solo download copre tutti i pesi indicati.
+
+   Nota sul perché il foglio di stile resta bloccante invece di essere caricato
+   in differita con il CSS della prima schermata in linea: provato e misurato,
+   peggiorava. Anticipando il primo disegno la pagina compariva con i caratteri
+   di sistema e poi si riassestava all'arrivo dei woff2 — 0,25 di CLS su rete
+   lenta, soglia "scarso", contro 0,00 di adesso. Su una pagina fatta solo di
+   testo, comparire 300 ms prima e poi saltare è peggio che comparire ferma.
+   `font-display: optional` toglieva lo scatto, ma al prezzo di mostrare i
+   caratteri di sistema proprio alla prima visita, che è quella che conta. */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("../fonts/source-serif-4-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ------------------------------------------------------------------- token */
 
 :root {
@@ -119,14 +157,37 @@ button { background: none; border: none; padding: 0; }
   padding: 0 var(--gutter);
 }
 
-/* Stato iniziale delle animazioni: applicato solo se il JS è attivo,
-   così senza JS (o se motion non carica) il contenuto resta visibile. */
-.js [data-anim] { opacity: 0; }
-.js [data-anim].is-visibile { opacity: 1; }
+/* Comparsa allo scroll. Tutta l'animazione sta qui: app.js si limita ad
+   aggiungere `.is-visibile` quando la sezione entra nello schermo, e il ritardo
+   a cascata come `transition-delay` in linea.
+
+   Lo stato nascosto vale solo con la classe `js`, che viene messa nel <head>
+   soltanto se il browser sa osservare lo scroll: chi non può rivelare il testo
+   non lo vede nemmeno sparire. */
+.js [data-anim] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+}
+.js [data-anim].is-visibile { opacity: 1; transform: none; }
+
+/* Comparsa dell'anteprima progetto e del pannello di esito: `animation` e non
+   `transition` perché deve poter ripartire da capo a ogni cambio. */
+@keyframes fr-entra {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.tablet.is-entrato .tablet__schermo,
+.esito.is-entrato { animation: fr-entra 0.38s var(--ease) both; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .js [data-anim] { opacity: 1 !important; transform: none !important; }
+  .js [data-anim] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .scroll-progress { display: none; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
@@ -197,6 +258,19 @@ button { background: none; border: none; padding: 0; }
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: 0 50%;
+}
+
+/* Dove esiste, il filetto lo muove il browser da solo: nessun listener di
+   scroll, nessun JavaScript a ogni frame. Altrove ci pensa app.js. */
+@supports (animation-timeline: scroll()) {
+  .scroll-progress span {
+    animation: fr-avanzamento linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+@keyframes fr-avanzamento {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 /* -------------------------------------------------------------- componenti */
@@ -344,6 +418,7 @@ button { background: none; border: none; padding: 0; }
 .hero__scheda .lista-dati { margin-top: 18px; }
 .hero__scheda-nota { margin-top: 18px; font-size: 14.5px; color: var(--muted); }
 
+
 /* ------------------------------------------------- griglia a filetti (card) */
 
 .griglia-filetto {
@@ -412,6 +487,113 @@ button { background: none; border: none; padding: 0; }
   margin-bottom: 14px;
 }
 
+/* --------------------------------------------------------------- prezzi */
+
+.card--prezzo .card__titolo { margin-top: 18px; font-size: 1.35rem; }
+.card--evidenza { background: var(--paper-pure); }
+
+.prezzo {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+}
+.prezzo__cifra {
+  font-family: var(--sans);
+  font-size: clamp(1.9rem, 3.4vw, 2.3rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.prezzo__nota { font-size: 13.5px; color: var(--muted); }
+
+/* In attesa del listino: nota sobria al posto della cifra grande */
+.prezzo--attesa {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.prezzo__ricorrente {
+  flex: 1 1 100%;
+  margin-top: 4px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.card--prezzo .card__testo { margin-top: 16px; }
+
+.prezzi__piede {
+  margin-top: clamp(24px, 3vw, 34px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 32px;
+  align-items: center;
+  justify-content: space-between;
+}
+.prezzi__nota { max-width: 62ch; font-size: 14.5px; color: var(--muted); }
+
+/* ------------------------------------------------------------- chi siamo */
+
+.chi-siamo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(24px, 4vw, 52px);
+  align-items: flex-start;
+}
+.chi-siamo__ritratto { flex: 0 0 auto; }
+.chi-siamo__foto {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+/* Senza foto: le iniziali, che è comunque meglio di un riquadro vuoto */
+.chi-siamo__iniziali {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 180px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  font-family: var(--sans);
+  font-size: 2.8rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+.chi-siamo__testo { flex: 1 1 320px; min-width: 0; }
+.chi-siamo__nome {
+  margin-top: 14px;
+  font-family: var(--sans);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.chi-siamo__ruolo { margin-top: 4px; font-size: 15px; color: var(--muted); }
+.chi-siamo__racconto {
+  margin-top: 18px;
+  max-width: 56ch;
+  font-size: 16.5px;
+  color: var(--ink-soft);
+}
+.chi-siamo__recapiti {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+}
+
 /* ------------------------------------------------------------- progetti */
 
 .progetti {
@@ -440,7 +622,7 @@ button { background: none; border: none; padding: 0; }
   width: 100%;
 }
 .progetto:hover { border-color: var(--ink); }
-.progetto[aria-pressed="true"] {
+.progetto[aria-selected="true"] {
   background: var(--paper-pure);
   border-color: var(--ink);
 }
@@ -492,9 +674,9 @@ button { background: none; border: none; padding: 0; }
   text-transform: uppercase;
   color: var(--muted);
 }
-.progetto[aria-pressed="true"] .progetto__meta { color: var(--accent); }
+.progetto[aria-selected="true"] .progetto__meta { color: var(--accent); }
 
-.progetti__nota { font-size: 14.5px; color: var(--muted); }
+.progetti__nota { margin-top: 22px; font-size: 14.5px; color: var(--muted); }
 
 .progetti__anteprima { flex: 1.35 1 380px; min-width: 0; }
 
@@ -597,6 +779,50 @@ button { background: none; border: none; padding: 0; }
   color: var(--muted);
 }
 
+/* ------------------------------------------------------------------ faq */
+
+.faq {
+  margin-top: clamp(30px, 4vw, 48px);
+  border-top: 1px solid var(--rule);
+}
+.faq__voce { border-bottom: 1px solid var(--rule); }
+
+.faq__domanda {
+  position: relative;
+  padding: 18px 44px 18px 0;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+.faq__domanda::-webkit-details-marker { display: none; }
+
+/* Segno "+" costruito con due filetti, coerente con il resto della pagina.
+   Aprendo la voce quello verticale sparisce e resta un "−". */
+.faq__domanda::after,
+.faq__domanda::before {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+}
+.faq__domanda::after { right: 8px; top: calc(50% - 0.5px); width: 13px; height: 1px; }
+.faq__domanda::before { right: 14px; top: calc(50% - 6px); width: 1px; height: 13px; }
+.faq__voce[open] .faq__domanda::before { opacity: 0; transform: rotate(90deg); }
+.faq__voce[open] .faq__domanda { color: var(--accent); }
+.faq__voce[open] .faq__domanda::after,
+.faq__voce[open] .faq__domanda::before { background: var(--accent); }
+
+.faq__risposta {
+  padding: 0 44px 22px 0;
+  max-width: 66ch;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+
 /* ------------------------------------------------------------- contatti */
 
 .contatti {
@@ -667,7 +893,9 @@ button { background: none; border: none; padding: 0; }
 .campo__input:focus { outline: none; border-color: var(--accent); border-bottom-width: 1px; }
 .campo__input:focus-visible { outline: none; border-color: var(--accent); }
 .campo__input.is-errore { border-color: var(--errore); }
-.campo__input::placeholder { color: #A2A6A3; }
+/* Il grigio chiaro di prima stava a 2,3:1 sul fondo chiaro: sotto la soglia
+   WCAG di 4,5:1, e i suggerimenti dei campi sono testo a tutti gli effetti. */
+.campo__input::placeholder { color: var(--muted); opacity: 1; }
 textarea.campo__input { resize: vertical; font-family: inherit; min-height: 84px; }
 
 .campo__errore {
@@ -748,14 +976,6 @@ textarea.campo__input { resize: vertical; font-family: inherit; min-height: 84px
 .footer__testo { margin-top: 12px; font-size: 15px; color: var(--ink-soft); }
 .footer__testo a { color: var(--ink-soft); }
 .footer__testo a:hover { color: var(--accent); }
-.footer__privacy {
-  font-size: 15px;
-  color: var(--ink);
-  cursor: pointer;
-  text-align: left;
-  font-family: var(--serif);
-}
-.footer__privacy:hover { color: var(--accent); }
 .footer__legale {
   margin-top: 30px;
   padding-top: 18px;
@@ -835,6 +1055,84 @@ textarea.campo__input { resize: vertical; font-family: inherit; min-height: 84px
   color: var(--muted);
 }
 
+/* ---------------------------------------------------------- barra mobile */
+
+
+/* Sui telefoni chiamare e scrivere su WhatsApp sono i due gesti che portano
+   clienti: devono restare sotto il pollice in qualunque punto della pagina.
+   Su schermi larghi non serve (i recapiti sono già visibili) e resta nascosta. */
+.barra-mobile { display: none; }
+
+@media (max-width: 640px) {
+  body {
+    /* Spazio perché la barra fissa non copra la fine del footer */
+    padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .barra-mobile {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 45;
+    display: flex;
+    background: var(--paper-pure);
+    border-top: 1px solid var(--rule-forte);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .barra-mobile__voce {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 9px 6px 10px;
+    border-left: 1px solid var(--rule);
+    font-family: var(--sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .barra-mobile__voce:first-child { border-left: none; }
+  .barra-mobile__voce:hover { color: var(--ink); }
+  .barra-mobile__voce--forte,
+  .barra-mobile__voce--forte:hover {
+    background: var(--accent);
+    border-left-color: var(--accent);
+    color: var(--paper);
+  }
+  .barra-mobile__icona {
+    width: 21px;
+    height: 21px;
+    fill: currentColor;
+  }
+}
+
+/* ------------------------------------------------------- pagine generate */
+
+.hero--pagina { padding-bottom: clamp(28px, 4vw, 44px); }
+.hero--pagina .hero__testo { flex: 1 1 100%; }
+
+.card__punti--grande { margin-top: 28px; gap: 10px; }
+.card__punti--grande li { padding-left: 22px; font-size: 16.5px; }
+.card__punti--grande li::before { width: 12px; }
+
+.pagina__anteprime {
+  margin-top: clamp(30px, 4vw, 48px);
+  display: grid;
+  gap: 24px;
+}
+
+.sezione--messaggio { max-width: 74ch; }
+.sezione--messaggio .contatti__testo { max-width: 62ch; }
+.sezione--messaggio .hero__azioni { margin-top: 30px; }
+.sezione--messaggio .esito__dopo { margin-top: 26px; }
+
+.privacy__corpo { margin-top: 28px; }
+.privacy__corpo .modale__intro { max-width: 66ch; }
+
 /* --------------------------------------------------------------- noscript */
 
 .noscript-box {
@@ -847,14 +1145,17 @@ textarea.campo__input { resize: vertical; font-family: inherit; min-height: 84px
 
 /* ------------------------------------------------------------- responsive */
 
+
 @media (max-width: 900px) {
   .lista-dati__valore { text-align: left; }
   .sezione__testa { flex-direction: column; gap: 12px; }
 }
 
 @media (max-width: 640px) {
-  :root { --header-h: 96px; }
+  :root { --header-h: 92px; }
 
+  /* Nota: il `padding-bottom` che lascia spazio alla barra fissa sta nel
+     blocco critico, insieme alla barra stessa. */
   body { font-size: 16.5px; }
 
   /* Riga 1: logo + pulsante d'azione. Riga 2: i link di navigazione. */
@@ -865,17 +1166,30 @@ textarea.campo__input { resize: vertical; font-family: inherit; min-height: 84px
   .logo { flex: 1 1 auto; margin-right: 0; }
   .logo__kicker { display: none; }
   .header__cta { flex: 0 0 auto; font-size: 12.5px; padding: 9px 13px; }
+
+  /* Una riga sola che scorre: aggiungendo voci al menu l'header non cresce
+     in altezza rubando schermo utile. */
   .nav {
     order: 3;
     flex: 1 1 100%;
-    gap: 8px 18px;
-    flex-wrap: wrap;
+    gap: 16px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
-  .nav__link { white-space: nowrap; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav__link { white-space: nowrap; font-size: 13px; }
 
   .hero { padding-top: 36px; }
   .hero__azioni .btn { flex: 1 1 100%; }
   .badge { flex: 1 1 100%; }
+
+  .chi-siamo { gap: 22px; }
+  .chi-siamo__foto,
+  .chi-siamo__iniziali { width: 132px; height: 132px; font-size: 2.2rem; }
+
+  .prezzi__piede .btn { flex: 1 1 100%; text-align: center; }
 
   .progetti__didascalia { flex-direction: column; gap: 6px; }
   .tablet { border-radius: 10px; padding: 8px; }

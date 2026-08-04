@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!-- ===========================================================================
+     ⚠️ QUESTO È IL SORGENTE. Non modificare index.html: viene rigenerato.
+     Dopo una modifica lancia `npm run build` (o `npm run dev`).
+     I contenuti stanno in assets/js/data.js, il markup in assets/js/render.js.
+     =========================================================================== -->
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Titolo, descrizione, canonical, Open Graph e dati strutturati: scritti da build.js -->
+{{HEAD}}
+
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+
+<!-- Caratteri ospitati qui: nessuna richiesta a Google, una connessione in meno
+     da aprire prima di poter disegnare il testo. -->
+<link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- Il foglio di stile resta bloccante di proposito: caricarlo in differita,
+     con il CSS della prima schermata in linea, anticipava il disegno di 300 ms
+     ma faceva comparire la pagina con i caratteri di sistema per poi
+     riassestarla (0,25 di CLS su rete lenta, contro 0,00 così). Vedi la nota
+     in cima a site.css. -->
+<link rel="stylesheet" href="assets/css/site.css">
+
+<!-- Marca la pagina come "JavaScript attivo" prima del primo disegno, così gli
+     elementi da animare partono già nascosti e non si vedono comparire due volte.
+     Il controllo su IntersectionObserver evita di nascondere del testo a un
+     browser che poi non saprebbe rivelarlo. -->
+<script>if("IntersectionObserver" in window)document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<a class="skip-link" href="#contenuto">Salta al contenuto</a>
+
+<div class="wrap">
+
+  <header class="site-header" id="top" data-mount="header"></header>
+  <div class="scroll-progress" aria-hidden="true"><span data-scroll-bar></span></div>
+
+  <main id="contenuto">
+
+    <!-- HERO -->
+    <section class="hero" data-mount="hero" aria-label="Presentazione"></section>
+
+    <!-- IL NOSTRO METODO -->
+    <section class="sezione" id="metodo" data-sezione data-mount="metodo" aria-labelledby="metodo-titolo"></section>
+
+    <!-- SERVIZI -->
+    <section class="sezione" id="servizi" data-sezione data-mount="servizi" aria-labelledby="servizi-titolo"></section>
+
+    <!-- PREZZI -->
+    <section class="sezione" id="prezzi" data-sezione data-mount="prezzi" aria-labelledby="prezzi-titolo"></section>
+
+    <!-- ANTEPRIMA PROGETTI -->
+    <section class="sezione" id="progetti" data-sezione data-mount="progetti" aria-labelledby="progetti-titolo"></section>
+
+    <!-- CHI TI RISPONDE -->
+    <section class="sezione sezione--chi-siamo" id="chi-siamo" data-sezione data-mount="chi-siamo" aria-label="Chi ti risponde"></section>
+
+    <!-- DOMANDE FREQUENTI -->
+    <section class="sezione" id="faq" data-sezione data-mount="faq" aria-labelledby="faq-titolo"></section>
+
+    <!-- CONTATTI -->
+    <section class="sezione" id="contatti" data-sezione aria-labelledby="contatti-titolo">
+      <div class="contatti">
+
+        <div class="contatti__intro" data-mount="contatti-intro"></div>
+
+        <div class="contatti__form">
+
+          <!-- =================================================================
+               MODULO SERVERLESS WEB3FORMS
+               Funziona anche senza JavaScript: POST classico verso l'endpoint,
+               con la access key vera scritta da build.js e atterraggio su
+               grazie.html. Con JavaScript attivo, app.js intercetta l'invio
+               e mostra la conferma direttamente in pagina.
+               ================================================================= -->
+          <form id="fr-form" class="modulo" action="https://api.web3forms.com/submit" method="POST"
+                aria-label="Richiedi un appuntamento o una demo gratuita">
+
+            <input type="hidden" name="access_key" id="f-access-key" value="{{ACCESS_KEY}}">
+            <input type="hidden" name="subject" value="Nuova richiesta dal sito FR Studio">
+            <input type="hidden" name="from_name" value="Sito FR Studio">
+            <input type="hidden" name="redirect" value="{{REDIRECT}}">
+            <input type="hidden" name="tipo_richiesta" id="f-modalita" value="Appuntamento di 5 minuti">
+
+            <!-- Trappola antispam di Web3Forms: invisibile e non raggiungibile da tastiera -->
+            <input type="checkbox" name="botcheck" class="u-visually-hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <div>
+              <p class="occhiello occhiello--muto" id="modalita-label">Cosa preferisci</p>
+              <div class="modulo__modalita" data-mount="form-modalita" role="group" aria-labelledby="modalita-label"></div>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-attivita">Nome dell'attività *</label>
+              <input class="campo__input" id="f-attivita" name="attivita" type="text" required
+                     autocomplete="organization" placeholder="Trattoria del Boiardo">
+              <span class="campo__errore" data-errore="attivita" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-referente">Con chi parliamo *</label>
+              <input class="campo__input" id="f-referente" name="referente" type="text" required
+                     autocomplete="name" placeholder="Elena Fontanesi">
+              <span class="campo__errore" data-errore="referente" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-telefono">Telefono o WhatsApp *</label>
+              <input class="campo__input" id="f-telefono" name="telefono" type="tel" required
+                     inputmode="tel" autocomplete="tel" placeholder="340 118 5522">
+              <span class="campo__errore" data-errore="telefono" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-email">Email (facoltativa)</label>
+              <input class="campo__input" id="f-email" name="email" type="email"
+                     inputmode="email" autocomplete="email" placeholder="info@latuaattivita.it">
+              <span class="campo__errore" data-errore="email" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-messaggio">Due righe sulla tua attività</label>
+              <textarea class="campo__input" id="f-messaggio" name="messaggio" rows="3"
+                        placeholder="Trattoria con 30 coperti in centro, vorremmo far vedere il menu del giorno."></textarea>
+            </div>
+
+            <div>
+              <div class="consenso">
+                <input type="checkbox" id="f-privacy" name="consenso_privacy" value="Sì" required>
+                <span class="consenso__testo">
+                  <label for="f-privacy">Accetto il trattamento dei dati personali per essere ricontattato. *</label>
+                  <!-- Link vero: senza JavaScript porta alla pagina, con JavaScript apre la modale -->
+                  <a class="consenso__link" href="privacy.html" data-apri-privacy>Leggi l'informativa privacy</a>
+                </span>
+              </div>
+              <span class="campo__errore" data-errore="privacy" role="alert"></span>
+            </div>
+
+            <button type="submit" id="f-submit" class="btn btn--primario modulo__submit">
+              <span data-submit-label>Prenota i 5 minuti</span>
+            </button>
+
+            <p class="modulo__nota">Ti richiamiamo entro un giorno lavorativo. Niente newsletter, niente automatismi.</p>
+          </form>
+
+          <!-- Pannello di conferma / errore, riempito da app.js -->
+          <div class="esito" id="fr-esito" hidden></div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" data-mount="footer"></footer>
+
+</div>
+
+<!-- Barra fissa in basso sui telefoni: chiamare e scrivere, sempre a portata di pollice -->
+<nav class="barra-mobile" data-mount="barra-mobile" aria-label="Contatti rapidi"></nav>
+
+<!-- ===========================================================================
+     MODALE PRIVACY POLICY
+     Scorciatoia per chi ha JavaScript: il testo è lo stesso di privacy.html
+     e arriva da data.js → privacy.
+     =========================================================================== -->
+<dialog id="privacy-modal" aria-labelledby="privacy-titolo">
+  <div class="modale__testa">
+    <h2 class="modale__titolo" id="privacy-titolo" data-mount="privacy-titolo"></h2>
+    <button type="button" class="modale__chiudi" data-chiudi-privacy>Chiudi</button>
+  </div>
+  <div class="modale__corpo" data-mount="privacy-corpo"></div>
+</dialog>
+
+<!-- dati.js è generato da build.js e contiene solo il minimo che serve dopo il
+     caricamento: il resto del sito è già scritto qui sopra. -->
+<script src="assets/js/dati.js" defer></script>
+<script src="assets/js/render.js" defer></script>
+<script src="assets/js/app.js" defer></script>
+
+</body>
+</html>

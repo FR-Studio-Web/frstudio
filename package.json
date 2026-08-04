@@ -1,13 +1,13 @@
 {
   "name": "sito-frstudio",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Sito ufficiale FR Studio — agenzia web per le attività locali di Scandiano (RE)",
   "private": true,
   "scripts": {
-    "sync:motion": "node -e \"const fs=require('fs');fs.mkdirSync('assets/vendor',{recursive:true});fs.copyFileSync('node_modules/motion/dist/motion.js','assets/vendor/motion.js');console.log('motion.js copiato in assets/vendor/')\"",
-    "postinstall": "npm run sync:motion",
-    "dev": "npx --yes serve . -l 3000",
-    "test": "echo \"Nessun test automatico: vedi la sezione Verifica nel README\" && exit 0"
+    "build": "node build.js",
+    "dev": "node build.js && npx --yes serve . -l 3000",
+    "fonts": "node scripts/scarica-font.js",
+    "test": "node build.js && node scripts/verifica.js"
   },
   "keywords": [
     "sito-statico",
@@ -17,8 +17,5 @@
   ],
   "author": "FR Studio",
   "license": "UNLICENSED",
-  "type": "commonjs",
-  "dependencies": {
-    "motion": "^12.43.0"
-  }
+  "type": "commonjs"
 }

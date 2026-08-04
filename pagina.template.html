@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- ===========================================================================
+     ⚠️ SORGENTE delle pagine secondarie: privacy, grazie, 404 e le pagine
+     per categoria. Non modificare i file .html generati da questo template.
+     Lancia `npm run build` dopo ogni modifica.
+     =========================================================================== -->
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{{HEAD}}
+
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+
+<link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/source-serif-4-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+<script>if("IntersectionObserver" in window)document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<a class="skip-link" href="#contenuto">Salta al contenuto</a>
+
+<div class="wrap">
+
+  <header class="site-header" id="top" data-mount="header-pagina"></header>
+
+  <main id="contenuto" data-mount="corpo"></main>
+
+  <footer class="site-footer" data-mount="footer-pagina"></footer>
+
+</div>
+
+<nav class="barra-mobile" data-mount="barra-mobile-pagina" aria-label="Contatti rapidi"></nav>
+
+<script src="assets/js/dati.js" defer></script>
+<script src="assets/js/render.js" defer></script>
+<script src="assets/js/app.js" defer></script>
+
+</body>
+</html>

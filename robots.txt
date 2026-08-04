@@ -1,5 +1,8 @@
+# Generato da build.js: non modificare a mano.
 User-agent: *
 Allow: /
 
-# ⚠️ SOSTITUIRE con il dominio definitivo
-Sitemap: https://www.frstudio.it/sitemap.xml
+# Sorgenti delle immagini: pubblicati, ma non c'è motivo di indicizzarli
+Disallow: /scripts/
+
+Sitemap: https://www.frstudioweb.it/sitemap.xml

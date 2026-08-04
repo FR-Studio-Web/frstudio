@@ -1,10 +1,13 @@
 /* ============================================================================
    FR STUDIO — APPLICAZIONE
    ----------------------------------------------------------------------------
-   Monta le sezioni, gestisce l'anteprima progetti, il modulo Web3Forms,
-   la modale privacy e le animazioni allo scroll (libreria `motion`).
+   Le pagine arrivano dal browser già scritte (le genera build.js): qui non si
+   costruisce il sito, si aggiunge soltanto quello che senza JavaScript non
+   potrebbe funzionare — la scelta del progetto, il modulo, la modale privacy
+   e le animazioni allo scroll.
 
-   Tutto degrada in sicurezza: se `motion` non è disponibile il sito resta
+   Nessuna libreria: le animazioni sono transizioni CSS accese da un
+   IntersectionObserver. Se qualcosa non è disponibile la pagina resta
    completamente visibile e utilizzabile.
    ========================================================================== */
 
@@ -15,67 +18,128 @@
   const R = window.FR_RENDER;
 
   if (!D || !R) {
-    console.error("[FR Studio] data.js o render.js non caricati: controlla i tag <script> in index.html.");
+    console.error("[FR Studio] data.js o render.js non caricati: controlla i tag <script>.");
+    rivelaTutto();
     return;
   }
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $$ = (sel, root) => Array.prototype.slice.call((root || document).querySelectorAll(sel));
-  const mount = (nome) => $('[data-mount="' + nome + '"]');
 
-  const motion = window.Motion || null;
   const riduciMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const animazioniAttive = !!motion && !riduciMovimento;
+  const osservabile = "IntersectionObserver" in window;
 
   /* ======================================================== 1. MONTAGGIO DOM */
 
-  function montaSezioni() {
-    mount("header").innerHTML = R.header(D);
-    mount("hero").innerHTML = R.hero(D);
-    mount("metodo").innerHTML = R.metodo(D);
-    mount("servizi").innerHTML = R.servizi(D);
-    mount("progetti").innerHTML = R.progetti(D, statoProgetto);
-    mount("contatti-intro").innerHTML = R.contattiIntro(D);
-    mount("footer").innerHTML = R.footer(D);
+  /**
+   * Controllo di sanità: se un contenitore è vuoto vuol dire che build.js non
+   * è stato lanciato dopo l'ultima modifica. Non proviamo a ricostruirlo qui —
+   * il browser riceve solo i dati che gli servono dopo il caricamento, non
+   * tutti i contenuti — ma lo diciamo chiaramente in console.
+   */
+  function controllaMontaggio() {
+    const vuoti = $$("[data-mount]")
+      .filter((el) => !el.innerHTML.trim())
+      .map((el) => el.getAttribute("data-mount"))
+      .filter((nome) => nome !== "form-modalita");   // costruito qui sotto, apposta
 
-    // Titolo del documento e recapiti coerenti con data.js
-    document.title = D.agenzia.nome + " — Siti web per le attività locali di " + D.agenzia.indirizzo.citta;
+    if (vuoti.length) {
+      console.warn(
+        "[FR Studio] Sezioni vuote (" + vuoti.join(", ") + "): " +
+          "lancia `npm run build` per riscrivere le pagine da data.js."
+      );
+    }
+  }
+
+  /**
+   * L'altezza dell'header serve al CSS per l'ancoraggio dei link interni e per
+   * la posizione del filetto di avanzamento. Misurarla è più affidabile che
+   * tenerne una copia scritta a mano nel foglio di stile.
+   */
+  function misuraHeader() {
+    const header = $(".site-header");
+    if (!header) return;
+
+    const applica = () => {
+      const h = Math.round(header.getBoundingClientRect().height);
+      if (h > 0) document.documentElement.style.setProperty("--header-h", h + "px");
+    };
+
+    applica();
+    if ("ResizeObserver" in window) new ResizeObserver(applica).observe(header);
+    else window.addEventListener("resize", applica);
   }
 
   /* ==================================================== 2. ANTEPRIMA PROGETTI */
 
   let statoProgetto = 0;
 
-  function selezionaProgetto(indice) {
-    if (indice === statoProgetto) return;
-    statoProgetto = indice;
+  function schedeProgetto() {
+    return $$('[role="tab"][data-progetto]');
+  }
+
+  function selezionaProgetto(indice, spostaFocus) {
+    const schede = schedeProgetto();
+    if (!schede.length || indice < 0 || indice >= D.progetti.elenco.length) return;
 
     const progetto = D.progetti.elenco[indice];
     const anteprima = $("#progetto-anteprima");
     const didascalia = $("[data-didascalia]");
+    const annuncio = $("[data-annuncio]");
 
-    anteprima.innerHTML = R.progettoAnteprima(progetto);
-    if (didascalia) didascalia.textContent = progetto.didascalia;
+    if (indice !== statoProgetto && anteprima) {
+      anteprima.innerHTML = R.progettoAnteprima(progetto);
+      anteprima.setAttribute("aria-labelledby", "progetto-tab-" + indice);
+      if (didascalia) didascalia.textContent = progetto.didascalia;
 
-    $$("[data-progetto]").forEach((btn) => {
-      btn.setAttribute("aria-pressed", String(Number(btn.dataset.progetto) === indice));
+      // Una riga sola, invece di far rileggere l'intero mock-up allo screen reader
+      if (annuncio) annuncio.textContent = "Anteprima: " + progetto.nome;
+
+      if (!riduciMovimento) {
+        anteprima.classList.remove("is-entrato");
+        // Forza un reflow: senza, il browser accorpa le due modifiche di classe
+        // e la transizione non riparte.
+        void anteprima.offsetWidth;
+        anteprima.classList.add("is-entrato");
+      }
+    }
+
+    statoProgetto = indice;
+
+    // Tabindex mobile: una sola scheda raggiungibile con Tab, le altre con le frecce
+    schede.forEach((scheda, i) => {
+      const attivo = i === indice;
+      scheda.setAttribute("aria-selected", String(attivo));
+      scheda.setAttribute("tabindex", attivo ? "0" : "-1");
     });
 
-    if (animazioniAttive) {
-      motion.animate(
-        anteprima.firstElementChild,
-        { opacity: [0, 1], transform: ["translateY(8px)", "none"] },
-        { duration: 0.35, ease: [0.16, 1, 0.3, 1] }
-      );
-    }
+    if (spostaFocus && schede[indice]) schede[indice].focus();
   }
 
   function collegaProgetti() {
     const elenco = $(".progetti__elenco");
     if (!elenco) return;
+
     elenco.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-progetto]");
-      if (btn) selezionaProgetto(Number(btn.dataset.progetto));
+      if (btn) selezionaProgetto(Number(btn.getAttribute("data-progetto")), false);
+    });
+
+    // Frecce, Home e Fine: comportamento atteso da chi naviga un gruppo di schede
+    elenco.addEventListener("keydown", (e) => {
+      const ultimo = D.progetti.elenco.length - 1;
+      let destinazione = null;
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") destinazione = statoProgetto + 1;
+      else if (e.key === "ArrowUp" || e.key === "ArrowLeft") destinazione = statoProgetto - 1;
+      else if (e.key === "Home") destinazione = 0;
+      else if (e.key === "End") destinazione = ultimo;
+      else return;
+
+      e.preventDefault();
+      if (destinazione < 0) destinazione = ultimo;
+      if (destinazione > ultimo) destinazione = 0;
+      selezionaProgetto(destinazione, true);
     });
   }
 
@@ -83,24 +147,30 @@
 
   let triggerPrivacy = null;
 
+  /**
+   * I link all'informativa puntano davvero a privacy.html: senza JavaScript
+   * portano alla pagina. Qui li intercettiamo per aprire la modale — ma solo
+   * se il browser sa gestirla davvero, altrimenti il link fa il suo mestiere.
+   */
   function collegaPrivacy() {
     const dialog = $("#privacy-modal");
-    if (!dialog) return;
+    if (!dialog || typeof dialog.showModal !== "function") return;
 
     document.addEventListener("click", (e) => {
       const apri = e.target.closest("[data-apri-privacy]");
       if (apri) {
+        // Lasciamo passare i click con Ctrl/Cmd o rotellina: chi vuole la pagina
+        // in una scheda nuova deve poterla aprire.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
         e.preventDefault();
         triggerPrivacy = apri;
-        // showModal() gestisce nativamente ESC, il focus trap e l'inertizzazione della pagina
-        if (typeof dialog.showModal === "function") dialog.showModal();
-        else dialog.setAttribute("open", "");
+        dialog.showModal();   // gestisce da sé ESC, focus trap e inertizzazione
         return;
       }
       if (e.target.closest("[data-chiudi-privacy]")) dialog.close();
     });
 
-    // Chiusura cliccando sullo sfondo (fuori dal riquadro bianco)
+    // Chiusura cliccando sullo sfondo (fuori dal riquadro)
     dialog.addEventListener("click", (e) => {
       if (e.target === dialog) dialog.close();
     });
@@ -163,8 +233,10 @@
     // Sposta il focus sull'esito: chi usa screen reader o tastiera lo sente subito
     esito.setAttribute("tabindex", "-1");
     esito.focus({ preventScroll: true });
-    if (animazioniAttive) {
-      motion.animate(esito, { opacity: [0, 1], transform: ["translateY(10px)", "none"] }, { duration: 0.4 });
+    if (!riduciMovimento) {
+      esito.classList.remove("is-entrato");
+      void esito.offsetWidth;
+      esito.classList.add("is-entrato");
     }
   }
 
@@ -182,7 +254,7 @@
     const modo = D.form.modalita[indice];
     $("#f-modalita").value = modo.valore;
     $$("[data-modalita]").forEach((btn) => {
-      const attivo = Number(btn.dataset.modalita) === indice;
+      const attivo = Number(btn.getAttribute("data-modalita")) === indice;
       btn.setAttribute("aria-pressed", String(attivo));
       btn.classList.toggle("is-attivo", attivo);
     });
@@ -191,7 +263,7 @@
   }
 
   function montaModalita() {
-    const box = mount("form-modalita");
+    const box = $('[data-mount="form-modalita"]');
     if (!box) return;
     box.innerHTML = D.form.modalita
       .map(
@@ -201,7 +273,7 @@
       .join("");
     box.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-modalita]");
-      if (btn) impostaModalita(Number(btn.dataset.modalita));
+      if (btn) impostaModalita(Number(btn.getAttribute("data-modalita")));
     });
   }
 
@@ -217,13 +289,11 @@
       campo.setAttribute("aria-required", "true");
     });
 
-    // La access key vive in data.js: la iniettiamo nel campo nascosto richiesto da Web3Forms
-    $("#f-access-key").value = D.form.accessKey;
     if (chiaveMancante()) {
       console.warn(
         "[FR Studio] Web3Forms access key non impostata. " +
-          "Apri assets/js/data.js e sostituisci `accessKey: \"TUA_ACCESS_KEY_QUI\"` " +
-          "con la chiave ricevuta da https://web3forms.com — finché resta il segnaposto il modulo non invia."
+          "Apri assets/js/data.js, sostituisci `form.accessKey` con la chiave ricevuta " +
+          "da https://web3forms.com e rilancia `npm run build`."
       );
     }
 
@@ -275,6 +345,7 @@
 
         if (risposta.ok && dati.success) {
           mostraEsito(R.formSuccesso(D, valori));
+          traccia("modulo-inviato");
         } else {
           console.error("[FR Studio] Web3Forms ha risposto con un errore:", dati);
           mostraEsito(R.formErrore(D, false));
@@ -294,63 +365,121 @@
     });
   }
 
-  /* ==================================================== 5. ANIMAZIONI (motion) */
+  /* ==================================================== 5. ANIMAZIONI (CSS) */
 
   function rivelaTutto() {
-    $$("[data-anim]").forEach((el) => el.classList.add("is-visibile"));
+    Array.prototype.forEach.call(document.querySelectorAll("[data-anim]"), (el) => {
+      el.classList.add("is-visibile");
+    });
   }
 
+  /**
+   * Comparsa allo scroll: la transizione è in CSS, qui si accende soltanto.
+   * Ogni sezione compare una volta sola, con gli elementi a cascata.
+   */
   function collegaAnimazioni() {
-    if (!animazioniAttive) {
+    if (riduciMovimento || !osservabile) {
       rivelaTutto();
       return;
     }
 
-    const { animate, inView, scroll, stagger } = motion;
+    const gestiti = new Set();
 
-    // Ingresso delle sezioni: una sola volta, quando entrano nel viewport
     $$("[data-sezione]").forEach((sezione) => {
       const elementi = $$("[data-anim]", sezione);
       if (!elementi.length) return;
 
-      // `amount: "some"` scatta appena la sezione entra nel viewport: a differenza di una
-      // soglia percentuale non resta mai bloccato sulle sezioni più alte dello schermo.
-      // Il margine negativo in basso ritarda l'innesco di ~10% dell'altezza della finestra.
-      inView(
-        sezione,
-        () => {
-          animate(
-            elementi,
-            { opacity: [0, 1], transform: ["translateY(16px)", "none"] },
-            { duration: 0.55, delay: stagger(0.07), ease: [0.16, 1, 0.3, 1] }
-          );
+      elementi.forEach((el, i) => {
+        gestiti.add(el);
+        // Cascata limitata a sette passi: su elenchi lunghi l'ultimo elemento
+        // altrimenti arriverebbe con un ritardo fastidioso.
+        el.style.transitionDelay = Math.min(i, 6) * 70 + "ms";
+      });
+
+      const osservatore = new IntersectionObserver(
+        (voci, obs) => {
+          if (!voci.some((v) => v.isIntersecting)) return;
           elementi.forEach((el) => el.classList.add("is-visibile"));
+          obs.disconnect();
         },
-        { amount: "some", margin: "0px 0px -10% 0px" }
+        { rootMargin: "0px 0px -10% 0px", threshold: 0 }
       );
+      osservatore.observe(sezione);
     });
 
-    // Filetto di avanzamento sotto l'header
-    const barra = $("[data-scroll-bar]");
-    if (barra) scroll(animate(barra, { scaleX: [0, 1] }, { ease: "linear" }));
+    // Rete di sicurezza: qualsiasi elemento fuori da una sezione osservata
+    // viene mostrato subito, invece di restare invisibile per sempre.
+    $$("[data-anim]").forEach((el) => {
+      if (!gestiti.has(el)) el.classList.add("is-visibile");
+    });
   }
 
-  /* ============================================================== 6. AVVIO */
+  /**
+   * Filetto di avanzamento sotto l'header.
+   * Dove il browser supporta `animation-timeline: scroll()` se ne occupa il CSS
+   * da solo, senza far girare JavaScript a ogni scroll.
+   */
+  function collegaAvanzamento() {
+    const barra = $("[data-scroll-bar]");
+    if (!barra || riduciMovimento) return;
+    if (window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()")) return;
+
+    let inCoda = false;
+    const aggiorna = () => {
+      const doc = document.documentElement;
+      const percorribile = doc.scrollHeight - doc.clientHeight;
+      const quota = percorribile > 0 ? doc.scrollTop / percorribile : 0;
+      barra.style.transform = "scaleX(" + quota + ")";
+      inCoda = false;
+    };
+
+    window.addEventListener("scroll", () => {
+      if (inCoda) return;
+      inCoda = true;
+      requestAnimationFrame(aggiorna);
+    }, { passive: true });
+
+    aggiorna();
+  }
+
+  /* ================================================== 6. MISURAZIONE (facolt.) */
+
+  /**
+   * Ponte verso un'analitica senza cookie (GoatCounter, Umami, Plausible…).
+   * Finché non ne colleghi una non fa assolutamente nulla: nessuno script di
+   * terze parti, nessun banner da mostrare. Vedi il README per collegarla.
+   */
+  function traccia(evento) {
+    if (typeof window.frTraccia === "function") window.frTraccia(evento);
+  }
+
+  function collegaTracciamento() {
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("a[href]");
+      if (!link) return;
+      const href = link.getAttribute("href") || "";
+      if (href.indexOf("tel:") === 0) traccia("chiamata");
+      else if (href.indexOf("wa.me") !== -1) traccia("whatsapp");
+    });
+  }
+
+  /* ============================================================== 7. AVVIO */
 
   function avvia() {
-    document.documentElement.classList.add("js");
-    if (!motion) {
-      console.warn(
-        "[FR Studio] `motion` non trovato: esegui `npm install && npm run sync:motion` " +
-          "per copiare la libreria in assets/vendor/. Il sito funziona comunque, senza animazioni."
-      );
+    try {
+      controllaMontaggio();
+      misuraHeader();
+      collegaProgetti();
+      collegaPrivacy();
+      collegaModulo();
+      collegaAnimazioni();
+      collegaAvanzamento();
+      collegaTracciamento();
+    } catch (err) {
+      // Meglio un sito senza fronzoli che un sito con del testo invisibile.
+      console.error("[FR Studio] Avvio non riuscito:", err);
+      rivelaTutto();
     }
-
-    montaSezioni();
-    collegaProgetti();
-    collegaPrivacy();
-    collegaModulo();
-    collegaAnimazioni();
   }
 
   if (document.readyState === "loading") {
