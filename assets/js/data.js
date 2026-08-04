@@ -234,7 +234,7 @@ window.FR_DATA = {
   form: {
     // ⚠️ SOSTITUIRE con la chiave ricevuta via email da https://web3forms.com
     // (la chiave è pubblica per progetto: è pensata per stare nel codice sorgente)
-    accessKey: "TUA_ACCESS_KEY_QUI",
+    accessKey: "102c74b9-fb37-4548-a08c-77ca567e8451",
 
     modalita: [
       { valore: "Appuntamento di 5 minuti", label: "Appuntamento di 5 minuti", submit: "Prenota i 5 minuti" },
