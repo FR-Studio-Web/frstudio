@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# ⚠️ SOSTITUIRE con il dominio definitivo
+Sitemap: https://www.frstudio.it/sitemap.xml

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- ⚠️ SOSTITUIRE con il dominio definitivo prima della pubblicazione -->
+<link rel="canonical" href="https://www.frstudio.it/">
+
+<title>FR Studio — Siti web per le attività locali di Scandiano</title>
+<meta name="description" content="Realizziamo siti web moderni per ristoranti, negozi e artigiani di Scandiano e Reggio Emilia. Zero anticipo: prima ti mostriamo la demo su tablet, poi decidi.">
+<meta name="author" content="FR Studio">
+<meta name="theme-color" content="#F8F9FA">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:site_name" content="FR Studio">
+<meta property="og:url" content="https://www.frstudio.it/">
+<meta property="og:title" content="FR Studio — Siti web per le attività locali di Scandiano">
+<meta property="og:description" content="Zero anticipo: prima realizziamo la demo del tuo sito e te la mostriamo su tablet, poi decidi se acquistarla.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="FR Studio — Siti web per le attività locali di Scandiano">
+<meta name="twitter:description" content="Zero anticipo: prima realizziamo la demo del tuo sito e te la mostriamo su tablet, poi decidi se acquistarla.">
+
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap">
+<link rel="stylesheet" href="assets/css/site.css">
+
+<!-- Dati strutturati: statici, così restano leggibili anche senza eseguire JavaScript.
+     ⚠️ SOSTITUIRE i valori segnaposto con quelli reali. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "FR Studio",
+  "description": "Agenzia web per attività locali: siti vetrina, moduli di contatto e prenotazione, manutenzione.",
+  "url": "https://www.frstudio.it/",
+  "email": "ciao@frstudio.it",
+  "telephone": "+390522000000",
+  "priceRange": "€€",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Via —, 0",
+    "postalCode": "42019",
+    "addressLocality": "Scandiano",
+    "addressRegion": "RE",
+    "addressCountry": "IT"
+  },
+  "areaServed": [
+    { "@type": "City", "name": "Scandiano" },
+    { "@type": "City", "name": "Casalgrande" },
+    { "@type": "City", "name": "Albinea" },
+    { "@type": "City", "name": "Reggio Emilia" }
+  ],
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "opens": "09:00",
+    "closes": "19:00"
+  }]
+}
+</script>
+</head>
+<body>
+
+<a class="skip-link" href="#contenuto">Salta al contenuto</a>
+
+<div class="wrap">
+
+  <header class="site-header" id="top" data-mount="header"></header>
+  <div class="scroll-progress" aria-hidden="true"><span data-scroll-bar></span></div>
+
+  <main id="contenuto">
+
+    <noscript>
+      <div class="noscript-box">
+        <h2>FR Studio</h2>
+        <p>Siti web per ristoranti, negozi e artigiani di Scandiano e Reggio Emilia.
+           Zero anticipo: prima realizziamo la demo, poi decidi.</p>
+        <p style="margin-top:12px">
+          Telefono e WhatsApp: <a href="tel:+390522000000">0522 000 000</a><br>
+          Email: <a href="mailto:ciao@frstudio.it">ciao@frstudio.it</a><br>
+          Scandiano (RE) — Lun-Sab, 9-19
+        </p>
+        <p style="margin-top:12px">Il modulo di contatto qui sotto funziona anche con JavaScript disattivato.</p>
+      </div>
+    </noscript>
+
+    <!-- HERO -->
+    <section class="hero" data-sezione data-mount="hero" aria-label="Presentazione"></section>
+
+    <!-- IL NOSTRO METODO -->
+    <section class="sezione" id="metodo" data-sezione data-mount="metodo" aria-labelledby="metodo-titolo"></section>
+
+    <!-- SERVIZI -->
+    <section class="sezione" id="servizi" data-sezione data-mount="servizi" aria-labelledby="servizi-titolo"></section>
+
+    <!-- ANTEPRIMA PROGETTI -->
+    <section class="sezione" id="progetti" data-sezione data-mount="progetti" aria-labelledby="progetti-titolo"></section>
+
+    <!-- CONTATTI -->
+    <section class="sezione" id="contatti" data-sezione aria-labelledby="contatti-titolo">
+      <div class="contatti">
+
+        <div class="contatti__intro" data-mount="contatti-intro"></div>
+
+        <div class="contatti__form">
+
+          <!-- =================================================================
+               MODULO SERVERLESS WEB3FORMS
+               Funziona anche senza JavaScript (POST classico verso l'endpoint).
+               Con JavaScript attivo, app.js intercetta l'invio e mostra la
+               conferma direttamente in pagina.
+               La access key viene letta da assets/js/data.js.
+               ================================================================= -->
+          <form id="fr-form" class="modulo" action="https://api.web3forms.com/submit" method="POST"
+                aria-label="Richiedi un appuntamento o una demo gratuita">
+
+            <input type="hidden" name="access_key" id="f-access-key" value="TUA_ACCESS_KEY_QUI">
+            <input type="hidden" name="subject" value="Nuova richiesta dal sito FR Studio">
+            <input type="hidden" name="from_name" value="Sito FR Studio">
+            <input type="hidden" name="redirect" value="https://web3forms.com/success">
+            <input type="hidden" name="tipo_richiesta" id="f-modalita" value="Appuntamento di 5 minuti">
+
+            <!-- Trappola antispam di Web3Forms: invisibile e non raggiungibile da tastiera -->
+            <input type="checkbox" name="botcheck" class="u-visually-hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <div>
+              <p class="occhiello occhiello--muto" id="modalita-label">Cosa preferisci</p>
+              <div class="modulo__modalita" data-mount="form-modalita" role="group" aria-labelledby="modalita-label"></div>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-attivita">Nome dell'attività *</label>
+              <input class="campo__input" id="f-attivita" name="attivita" type="text" required
+                     autocomplete="organization" placeholder="Trattoria del Boiardo">
+              <span class="campo__errore" data-errore="attivita" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-referente">Con chi parliamo *</label>
+              <input class="campo__input" id="f-referente" name="referente" type="text" required
+                     autocomplete="name" placeholder="Elena Fontanesi">
+              <span class="campo__errore" data-errore="referente" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-telefono">Telefono o WhatsApp *</label>
+              <input class="campo__input" id="f-telefono" name="telefono" type="tel" required
+                     autocomplete="tel" placeholder="340 118 5522">
+              <span class="campo__errore" data-errore="telefono" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-email">Email (facoltativa)</label>
+              <input class="campo__input" id="f-email" name="email" type="email"
+                     autocomplete="email" placeholder="info@latuaattivita.it">
+              <span class="campo__errore" data-errore="email" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="f-messaggio">Due righe sulla tua attività</label>
+              <textarea class="campo__input" id="f-messaggio" name="messaggio" rows="3"
+                        placeholder="Trattoria con 30 coperti in centro, vorremmo far vedere il menu del giorno."></textarea>
+            </div>
+
+            <div>
+              <div class="consenso">
+                <input type="checkbox" id="f-privacy" name="consenso_privacy" value="Sì" required>
+                <span class="consenso__testo">
+                  <label for="f-privacy">Accetto il trattamento dei dati personali per essere ricontattato. *</label>
+                  <button type="button" class="consenso__link" data-apri-privacy>Leggi l'informativa privacy</button>
+                </span>
+              </div>
+              <span class="campo__errore" data-errore="privacy" role="alert"></span>
+            </div>
+
+            <button type="submit" id="f-submit" class="btn btn--primario modulo__submit">
+              <span data-submit-label>Prenota i 5 minuti</span>
+            </button>
+
+            <p class="modulo__nota">Ti richiamiamo entro un giorno lavorativo. Niente newsletter, niente automatismi.</p>
+          </form>
+
+          <!-- Pannello di conferma / errore, riempito da app.js -->
+          <div class="esito" id="fr-esito" hidden></div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" data-mount="footer"></footer>
+
+</div>
+
+<!-- ===========================================================================
+     MODALE PRIVACY POLICY — informativa ex art. 13 Reg. UE 2016/679
+     Testo statico: resta leggibile anche se JavaScript non è disponibile.
+     ⚠️ SOSTITUIRE i dati identificativi del titolare prima della pubblicazione.
+     =========================================================================== -->
+<dialog id="privacy-modal" aria-labelledby="privacy-titolo">
+  <div class="modale__testa">
+    <h2 class="modale__titolo" id="privacy-titolo">Privacy Policy — informativa ex art. 13 Regolamento UE 2016/679</h2>
+    <button type="button" class="modale__chiudi" data-chiudi-privacy>Chiudi</button>
+  </div>
+
+  <div class="modale__corpo">
+    <p class="modale__intro">
+      Questo è un sito statico: <strong>non utilizza cookie di tracciamento o di profilazione</strong>,
+      non installa strumenti di analisi del comportamento e non condivide dati con circuiti pubblicitari.
+      I dati che ci lasci nel modulo di contatto servono soltanto a ricontattarti.
+    </p>
+
+    <div class="modale__blocchi">
+      <div class="modale__blocco">
+        <h3>Titolare del trattamento</h3>
+        <p>FR Studio, Via —, 0 — 42019 Scandiano (RE), P.IVA 00000000000.
+           Email: <a href="mailto:privacy@frstudio.it">privacy@frstudio.it</a></p>
+      </div>
+
+      <div class="modale__blocco">
+        <h3>Quali dati raccogliamo</h3>
+        <p>Solo quelli che scrivi nel modulo: nome dell'attività, nome del referente,
+           telefono, email (facoltativa) e il messaggio. Nessun dato viene raccolto
+           automaticamente durante la navigazione.</p>
+      </div>
+
+      <div class="modale__blocco">
+        <h3>Finalità e base giuridica</h3>
+        <p>I dati servono a rispondere alla richiesta di appuntamento o di demo e alla
+           trattativa precontrattuale (art. 6.1.b) e, con il tuo consenso, a ricontattarti (art. 6.1.a).
+           Non facciamo marketing automatizzato né newsletter.</p>
+      </div>
+
+      <div class="modale__blocco">
+        <h3>Cookie</h3>
+        <p>Il sito non rilascia cookie propri di profilazione. I caratteri tipografici sono
+           serviti da Google Fonts, che riceve l'indirizzo IP necessario a consegnare il file:
+           per evitarlo del tutto è possibile ospitare i font in locale.</p>
+      </div>
+
+      <div class="modale__blocco">
+        <h3>Conservazione e destinatari</h3>
+        <p>Conserviamo i dati per 24 mesi dall'ultimo contatto. Vi accedono soltanto i fornitori
+           di invio modulo (Web3Forms), hosting e posta elettronica, nominati responsabili
+           ai sensi dell'art. 28.</p>
+      </div>
+
+      <div class="modale__blocco">
+        <h3>I tuoi diritti</h3>
+        <p>Puoi chiedere accesso, rettifica, cancellazione, limitazione, portabilità e opposizione
+           (artt. 15-22) scrivendo a <a href="mailto:privacy@frstudio.it">privacy@frstudio.it</a>,
+           oppure presentare reclamo al Garante per la protezione dei dati personali.
+           I campi contrassegnati con * sono necessari per gestire la richiesta.</p>
+      </div>
+    </div>
+
+    <p class="modale__nota">
+      ⚠️ Testo di esempio: sostituisci i dati identificativi del titolare con quelli reali
+      e fai verificare l'informativa dal tuo consulente prima della pubblicazione.
+    </p>
+  </div>
+</dialog>
+
+<!-- Libreria di animazione (copiata da node_modules con `npm run sync:motion`) -->
+<script src="assets/vendor/motion.js" defer></script>
+
+<!-- Contenuti, template e logica -->
+<script src="assets/js/data.js" defer></script>
+<script src="assets/js/render.js" defer></script>
+<script src="assets/js/app.js" defer></script>
+
+</body>
+</html>
