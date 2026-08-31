@@ -61,11 +61,15 @@ verifica(
 
 // Con il listino ancora da definire, `prezzo` è vuoto e in pagina deve
 // comparire la nota al suo posto — non un riquadro a metà.
-const primoPacchetto = D.prezzi.pacchetti[0];
-verifica(
-  "la sezione prezzi non mostra niente",
-  home.indexOf(primoPacchetto.prezzo || primoPacchetto.prezzoNota) !== -1
-);
+// La sezione prezzi è però opzionale: se manca in data.js non c'è niente da
+// controllare (stessa guardia che usa build.js).
+if (D.prezzi && D.prezzi.pacchetti && D.prezzi.pacchetti.length) {
+  const primoPacchetto = D.prezzi.pacchetti[0];
+  verifica(
+    "la sezione prezzi non mostra niente",
+    home.indexOf(primoPacchetto.prezzo || primoPacchetto.prezzoNota) !== -1
+  );
+}
 
 verifica(
   "riquadro prezzo vuoto in pagina",
