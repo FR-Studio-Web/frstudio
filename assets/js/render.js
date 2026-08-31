@@ -103,7 +103,22 @@ window.FR_RENDER = (function () {
     return base + "/" + String(percorso).replace(/^\/+/, "");
   }
 
-  /* ------------------------------------------------------------------ header */
+  /* ------------------------------------------------------------------ logo */
+
+  function logoBrandHeader() {
+    return `<img src="assets/img/logo.png" class="header-logo-img" alt="FR Studio Web Logo">`;
+  }
+
+  function scrollProgressBar() {
+    return `
+      <div class="scroll-progress" aria-hidden="true">
+        <span class="scroll-progress__luogo" data-scroll-source>Scandiano · Reggio Emilia</span>
+        <div class="scroll-progress__traccia">
+          <span class="scroll-progress__barra" data-scroll-bar></span>
+        </div>
+        <span class="scroll-progress__target" data-scroll-target>La tua impresa</span>
+      </div>`;
+  }
 
   function header(d) {
     const navLinks = d.nav
@@ -112,11 +127,11 @@ window.FR_RENDER = (function () {
 
     return `
       <a class="logo" href="#top" aria-label="${esc(d.agenzia.nome)} — torna in cima">
-        <span class="logo__nome">${esc(d.agenzia.nome)}</span>
-        <span class="logo__kicker">${esc(d.agenzia.kicker)}</span>
+        ${logoBrandHeader()}
       </a>
       <nav class="nav" aria-label="Navigazione principale">${navLinks}</nav>
-      <a class="btn btn--primario btn--compatto header__cta" href="${esc(d.ctaHeader.href)}">${esc(d.ctaHeader.label)}</a>`;
+      <a class="btn btn--primario btn--compatto header__cta" href="${esc(d.ctaHeader.href)}">${esc(d.ctaHeader.label)}</a>
+      ${scrollProgressBar()}`;
   }
 
   /** Header delle pagine secondarie: i link puntano alla home. */
@@ -127,11 +142,11 @@ window.FR_RENDER = (function () {
 
     return `
       <a class="logo" href="index.html" aria-label="${esc(d.agenzia.nome)} — vai alla home">
-        <span class="logo__nome">${esc(d.agenzia.nome)}</span>
-        <span class="logo__kicker">${esc(d.agenzia.kicker)}</span>
+        ${logoBrandHeader()}
       </a>
       <nav class="nav" aria-label="Navigazione principale">${navLinks}</nav>
-      <a class="btn btn--primario btn--compatto header__cta" href="index.html${esc(d.ctaHeader.href)}">${esc(d.ctaHeader.label)}</a>`;
+      <a class="btn btn--primario btn--compatto header__cta" href="index.html${esc(d.ctaHeader.href)}">${esc(d.ctaHeader.label)}</a>
+      ${scrollProgressBar()}`;
   }
 
   /* ------------------------------------------------------------ barra mobile */
@@ -182,6 +197,38 @@ window.FR_RENDER = (function () {
     </svg>`;
   }
 
+  function iconaVerde(tipo) {
+    const icones = {
+      scudo: `<svg class="icona-svg-verde" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      mobile: `<svg class="icona-svg-verde" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="2" width="12" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+      persone: `<svg class="icona-svg-verde" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="2"/></svg>`,
+      ia: `<svg class="icona-svg-verde" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M6 3L7 5.5L9.5 6.5L7 7.5L6 10L5 7.5L2.5 6.5L5 5.5L6 3Z" fill="currentColor"/></svg>`
+    };
+    return icones[tipo] || "";
+  }
+
+  function splashIntro() {
+    return `
+      <div id="splash-intro" class="splash-intro" role="dialog" aria-label="FR Studio Web Animazione">
+        <div class="splash-intro__bg">
+          <div class="splash-intro__orb splash-intro__orb--1"></div>
+          <div class="splash-intro__orb splash-intro__orb--2"></div>
+          <div class="splash-intro__orb splash-intro__orb--3"></div>
+        </div>
+
+        <div class="splash-intro__content">
+          <div class="splash-logo-card">
+            <div class="glass-surface__highlight"></div>
+            <img src="assets/img/logo.png" class="splash-logo-img" alt="FR Studio Web Logo">
+            <div class="splash-loading-bar" aria-hidden="true">
+              <div class="splash-loading-progress"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   /* -------------------------------------------------------------------- hero */
 
   function hero(d) {
@@ -197,7 +244,10 @@ window.FR_RENDER = (function () {
     const badge = h.badge
       .map(
         (b) => `<li class="badge">
-            <span class="badge__titolo">${esc(b.titolo)}</span>
+            <div class="badge__intestazione">
+              ${b.icona ? iconaVerde(b.icona) : ""}
+              <span class="badge__titolo">${esc(b.titolo)}</span>
+            </div>
             <span class="badge__nota">${esc(b.nota)}</span>
           </li>`
       )
@@ -217,7 +267,6 @@ window.FR_RENDER = (function () {
     // del JavaScript rallenterebbe il caricamento percepito.
     return `
       <div class="hero__testo">
-        <p class="occhiello occhiello--filetto"><span class="occhiello__filetto" aria-hidden="true"></span>${esc(h.occhiello)}</p>
         <h1 class="hero__titolo">${esc(h.titolo)}</h1>
         <p class="hero__sottotitolo">${esc(h.sottotitolo)}</p>
         <div class="hero__azioni">${cta}</div>
@@ -249,7 +298,7 @@ window.FR_RENDER = (function () {
             <p class="card__num">${esc(s.num)}</p>
             <h3 class="card__titolo">${esc(s.titolo)}</h3>
             <p class="card__testo">${esc(s.testo)}</p>
-            <p class="card__meta">${esc(s.meta)}</p>
+            ${s.meta ? `<p class="card__meta">${esc(s.meta)}</p>` : ""}
           </article>`
       )
       .join("");
@@ -276,6 +325,23 @@ window.FR_RENDER = (function () {
       .join("");
 
     return intestazione(d.servizi.titolo, d.servizi.sommario, "servizi-titolo") +
+      `<div class="griglia-filetto">${card}</div>`;
+  }
+
+  /* -------------------------------------------------------------- perche noi */
+
+  function percheNoi(d) {
+    const card = d.percheNoi.voci
+      .map(
+        (v) => `<article class="card" data-anim>
+            <p class="card__num">${esc(v.num)}</p>
+            <h3 class="card__titolo">${esc(v.titolo)}</h3>
+            <p class="card__testo">${esc(v.testo)}</p>
+          </article>`
+      )
+      .join("");
+
+    return intestazione(d.percheNoi.titolo, d.percheNoi.sommario, "perche-noi-titolo") +
       `<div class="griglia-filetto">${card}</div>`;
   }
 
@@ -345,11 +411,10 @@ window.FR_RENDER = (function () {
           <p class="occhiello occhiello--accento">${esc(c.occhiello)}</p>
           <p class="chi-siamo__nome">${esc(c.nome)}</p>
           <p class="chi-siamo__ruolo">${esc(c.ruolo)}</p>
+          <div class="chi-siamo__tag-wrap" style="margin: 10px 0 14px 0;">
+            <span class="tag-verde">${iconaVerde("ia")} Sviluppo assistito da IA</span>
+          </div>
           <p class="chi-siamo__racconto">${esc(c.testo)}</p>
-          <p class="chi-siamo__recapiti">
-            <a href="tel:${esc(d.agenzia.telefonoHref)}">${esc(d.agenzia.telefono)}</a>
-            ${wa ? `<a href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
-          </p>
         </div>
       </div>`;
   }
@@ -418,23 +483,33 @@ window.FR_RENDER = (function () {
     // scelta, uno screen reader rileggerebbe l'intera scheda. Annunciamo invece
     // una riga sola nel paragrafo nascosto qui sotto.
     return intestazione(d.progetti.titolo, d.progetti.sommario, "progetti-titolo") + `
-      <div class="progetti">
-        <div class="progetti__elenco" role="tablist" aria-orientation="vertical" aria-label="${esc(d.progetti.titolo)}">
-          ${elenco}
+      <div class="progetti-wrap">
+        <div class="progetti-wrap__contenuto">
+          <div class="progetti">
+            <div class="progetti__elenco" role="tablist" aria-orientation="vertical" aria-label="${esc(d.progetti.titolo)}">
+              ${elenco}
+            </div>
+            <div class="progetti__anteprima">
+              <div class="tablet" id="progetto-anteprima" role="tabpanel"
+                   aria-labelledby="progetto-tab-${attivoIdx}" tabindex="0">
+                ${progettoAnteprima(attivo)}
+              </div>
+              <div class="progetti__didascalia">
+                <span data-didascalia>${esc(attivo.didascalia)}</span>
+                <span class="occhiello occhiello--muto">${esc(d.progetti.etichettaAnteprima)}</span>
+              </div>
+              <p class="progetti__disclaimer">${esc(d.progetti.disclaimer)}</p>
+            </div>
+          </div>
+          <p class="progetti__nota">${esc(d.progetti.nota)}</p>
         </div>
-        <div class="progetti__anteprima">
-          <div class="tablet" id="progetto-anteprima" role="tabpanel"
-               aria-labelledby="progetto-tab-${attivoIdx}" tabindex="0">
-            ${progettoAnteprima(attivo)}
+        <div class="progetti-wrap__overlay" aria-hidden="true">
+          <div class="progetti-wrap__overlay-card">
+            <h4 class="progetti-wrap__overlay-titolo">Progetti in corso di realizzazione</h4>
+            <p class="progetti-wrap__overlay-testo">Stiamo sviluppando i nuovi siti per le attività locali del territorio. Le anteprime saranno disponibili a breve.</p>
           </div>
-          <div class="progetti__didascalia">
-            <span data-didascalia>${esc(attivo.didascalia)}</span>
-            <span class="occhiello occhiello--muto">${esc(d.progetti.etichettaAnteprima)}</span>
-          </div>
-          <p class="progetti__disclaimer">${esc(d.progetti.disclaimer)}</p>
         </div>
       </div>
-      <p class="progetti__nota">${esc(d.progetti.nota)}</p>
       <p class="u-visually-hidden" aria-live="polite" data-annuncio></p>`;
   }
 
@@ -442,12 +517,14 @@ window.FR_RENDER = (function () {
 
   function faq(d) {
     const voci = d.faq.voci
-      .map(
-        (v) => `<details class="faq__voce" data-anim>
-            <summary class="faq__domanda">${esc(v.domanda)}</summary>
+      .map((v) => {
+        const isIA = v.domanda.toLowerCase().includes("intelligenza artificiale") || v.domanda.toLowerCase().includes(" ia ");
+        const ic = isIA ? `<span style="display:inline-flex; align-items:center; gap:6px; margin-right:6px;">${iconaVerde("ia")}</span>` : "";
+        return `<details class="faq__voce" data-anim>
+            <summary class="faq__domanda">${ic}${esc(v.domanda)}</summary>
             <div class="faq__risposta"><p>${esc(v.risposta)}</p></div>
-          </details>`
-      )
+          </details>`;
+      })
       .join("");
 
     return intestazione(d.faq.titolo, d.faq.sommario, "faq-titolo") +
@@ -516,7 +593,7 @@ window.FR_RENDER = (function () {
     return `
       <div class="footer__griglia">
         <div class="footer__colonna footer__colonna--larga">
-          <p class="footer__marchio">${esc(a.nome)}</p>
+          <div class="footer__marchio"><img src="assets/img/logo.png" class="footer-logo-img" alt="FR Studio Web Logo"></div>
           <p class="footer__descrizione">${esc(d.footer.descrizione)}</p>
         </div>
         <div class="footer__colonna">
@@ -662,10 +739,6 @@ window.FR_RENDER = (function () {
         <div class="pagina__anteprime">${anteprime}</div>
       </section>` : ""}
 
-      <section class="sezione" id="prezzi" data-sezione aria-labelledby="prezzi-titolo">
-        ${prezzi(d)}
-      </section>
-
       <section class="sezione" id="faq" data-sezione aria-labelledby="faq-titolo">
         ${faq(d)}
       </section>
@@ -748,6 +821,7 @@ window.FR_RENDER = (function () {
       "hero":                () => hero(d),
       "metodo":              () => metodo(d),
       "servizi":             () => servizi(d),
+      "perche-noi":          () => percheNoi(d),
       "prezzi":              () => prezzi(d),
       "progetti":            () => progetti(d, 0),
       "chi-siamo":           () => chiSiamo(d),
@@ -776,6 +850,7 @@ window.FR_RENDER = (function () {
     hero: hero,
     metodo: metodo,
     servizi: servizi,
+    percheNoi: percheNoi,
     prezzi: prezzi,
     chiSiamo: chiSiamo,
     progetti: progetti,
@@ -788,6 +863,8 @@ window.FR_RENDER = (function () {
     privacyCorpo: privacyCorpo,
     paginaCategoria: paginaCategoria,
     paginaGrazie: paginaGrazie,
+    iconaVerde: iconaVerde,
+    splashIntro: splashIntro,
     pagina404: pagina404,
     paginaPrivacy: paginaPrivacy
   };

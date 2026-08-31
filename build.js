@@ -159,7 +159,7 @@ function datiStrutturatiAgenzia(D, R) {
     description: D.footer.descrizione,
     url: R.url(D, "index.html"),
     image: R.url(D, D.sito.ogImage),
-    logo: R.url(D, "assets/img/favicon.svg"),
+    logo: R.url(D, "assets/img/logo.png"),
     email: a.email,
     telephone: a.telefonoHref,
     priceRange: "€€",
@@ -170,8 +170,11 @@ function datiStrutturatiAgenzia(D, R) {
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
       opens: "09:00",
       closes: "19:00"
-    }],
-    hasOfferCatalog: {
+    }]
+  };
+
+  if (D.prezzi && D.prezzi.pacchetti && D.prezzi.pacchetti.length) {
+    dato.hasOfferCatalog = {
       "@type": "OfferCatalog",
       name: D.prezzi.titolo,
       itemListElement: D.prezzi.pacchetti.map((p) => ({
@@ -179,8 +182,8 @@ function datiStrutturatiAgenzia(D, R) {
         name: p.nome,
         description: p.per
       }))
-    }
-  };
+    };
+  }
 
   if (a.geo && a.geo.lat && a.geo.lon) {
     dato.geo = { "@type": "GeoCoordinates", latitude: a.geo.lat, longitude: a.geo.lon };
@@ -215,8 +218,11 @@ function datiStrutturatiServizio(D, R, p) {
       "@id": R.url(D, "index.html") + "#agenzia",
       name: D.agenzia.nome,
       url: R.url(D, "index.html")
-    },
-    hasOfferCatalog: {
+    }
+  };
+
+  if (D.prezzi && D.prezzi.pacchetti && D.prezzi.pacchetti.length) {
+    servizio.hasOfferCatalog = {
       "@type": "OfferCatalog",
       name: D.prezzi.titolo,
       itemListElement: D.prezzi.pacchetti.map((v) => ({
@@ -224,8 +230,8 @@ function datiStrutturatiServizio(D, R, p) {
         name: v.nome,
         description: v.per
       }))
-    }
-  };
+    };
+  }
 
   const briciole = {
     "@context": "https://schema.org",
@@ -302,11 +308,11 @@ function generaHome(D, R) {
   const html = montaTemplate(leggi("index.template.html"), R.mappaMount(D))
     .replace("{{HEAD}}", costruisciHead(D, R, {
       percorso: "index.html",
-      titolo: D.agenzia.nome + " — Siti web per le attività locali di " + D.agenzia.indirizzo.citta,
+      titolo: D.agenzia.nome,
       descrizione:
         "Realizziamo siti web moderni per ristoranti, negozi e artigiani di " +
         D.agenzia.indirizzo.citta + " e Reggio Emilia. Zero anticipo: prima ti mostriamo " +
-        "la demo su tablet, poi decidi.",
+        "la demo personalizzata, poi decidi.",
       datiStrutturati: [datiStrutturatiAgenzia(D, R), datiStrutturatiFaq(D)]
     }))
     .replace("{{ACCESS_KEY}}", R.esc(D.form.accessKey))
@@ -515,7 +521,7 @@ function controllaSegnaposto(D) {
   // P.IVA, indirizzo e coordinate NON sono in elenco: possono legittimamente
   // restare vuoti, e il sito si adatta da solo.
 
-  if (D.prezzi.pacchetti.every((p) => !p.prezzo)) {
+  if (D.prezzi && D.prezzi.pacchetti && D.prezzi.pacchetti.every((p) => !p.prezzo)) {
     daFare.push("nessun prezzo in chiaro: \"quanto costa\" è la prima domanda di chi vi legge");
   }
   if (!D.chiSiamo.foto) {

@@ -185,6 +185,8 @@
 
   const form = $("#fr-form");
   const esito = $("#fr-esito");
+  let sincronizzaIncontro = function () {};
+  let sincronizzaPrenotazione = function () {};
 
   function chiaveMancante() {
     const k = (D.form.accessKey || "").trim();
@@ -199,6 +201,18 @@
       campo.setAttribute("aria-invalid", messaggio ? "true" : "false");
       campo.classList.toggle("is-errore", !!messaggio);
     }
+    if (nome === "incontro") {
+      const selettore = $("[data-incontro-select]");
+      const trigger = $("#f-incontro-trigger");
+      if (selettore) selettore.classList.toggle("is-errore", !!messaggio);
+      if (trigger) trigger.setAttribute("aria-invalid", messaggio ? "true" : "false");
+    }
+    if (nome === "disponibilita") {
+      const prenotazione = $("[data-prenotazione]");
+      const giorno = $("#f-giorno");
+      if (prenotazione) prenotazione.classList.toggle("is-errore", !!messaggio);
+      if (giorno) giorno.setAttribute("aria-invalid", messaggio ? "true" : "false");
+    }
   }
 
   function validaModulo(valori) {
@@ -209,6 +223,11 @@
     if (valori.referente.trim().length < 2) errori.referente = msg.referente;
     if (valori.telefono.replace(/[^0-9]/g, "").length < 8) errori.telefono = msg.telefono;
     if (valori.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(valori.email)) errori.email = msg.email;
+    const dataIncontro = new Date(valori.disponibilita);
+    if (!valori.disponibilita || Number.isNaN(dataIncontro.getTime()) || dataIncontro.getTime() < Date.now()) {
+      errori.disponibilita = msg.disponibilita;
+    }
+    if (!valori.incontro) errori.incontro = msg.incontro;
     if (!valori.privacy) errori.privacy = msg.privacy;
 
     return errori;
@@ -220,6 +239,8 @@
       referente: $("#f-referente").value,
       telefono: $("#f-telefono").value,
       email: $("#f-email").value,
+      disponibilita: $("#f-disponibilita").value,
+      incontro: $("#f-incontro").value,
       messaggio: $("#f-messaggio").value,
       privacy: $("#f-privacy").checked,
       modalita: $("#f-modalita").value
@@ -242,7 +263,7 @@
 
   function ripristinaModulo() {
     form.reset();
-    ["attivita", "referente", "telefono", "email", "privacy"].forEach((n) => mostraErroreCampo(n, ""));
+    ["attivita", "referente", "telefono", "email", "disponibilita", "incontro", "privacy"].forEach((n) => mostraErroreCampo(n, ""));
     esito.hidden = true;
     esito.innerHTML = "";
     form.hidden = false;
@@ -266,14 +287,124 @@
     const box = $('[data-mount="form-modalita"]');
     if (!box) return;
     box.innerHTML = D.form.modalita
-      .map(
-        (m, i) =>
-          `<button type="button" class="chip" data-modalita="${i}" aria-pressed="${i === 0}">${R.esc(m.label)}</button>`
-      )
+      .map((m, i) => {
+        const ic = m.icona && R.iconaVerde ? R.iconaVerde(m.icona) : "";
+        return `
+          <button type="button" class="opzione-modalita ${i === 0 ? "is-attivo" : ""}" data-modalita="${i}" aria-pressed="${i === 0}">
+            <div class="opzione-modalita__intestazione">
+              <span class="opzione-modalita__titolo-box">
+                ${ic}
+                <strong class="opzione-modalita__titolo">${R.esc(m.label)}</strong>
+              </span>
+              ${m.badge ? `<span class="opzione-modalita__badge">${R.esc(m.badge)}</span>` : ""}
+            </div>
+            ${m.descrizione ? `<p class="opzione-modalita__descrizione">${R.esc(m.descrizione)}</p>` : ""}
+          </button>
+        `;
+      })
       .join("");
     box.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-modalita]");
       if (btn) impostaModalita(Number(btn.getAttribute("data-modalita")));
+    });
+  }
+
+  function montaSelettoreIncontro() {
+    const selettore = $("[data-incontro-select]");
+    const input = $("#f-incontro");
+    const trigger = $("#f-incontro-trigger");
+    const valore = $("#f-incontro-valore");
+    const elenco = $("#f-incontro-opzioni");
+    if (!selettore || !input || !trigger || !valore || !elenco) return;
+
+    const opzioni = $$('[data-incontro-valore]', selettore);
+    const chiudi = (riportaFocus) => {
+      elenco.hidden = true;
+      selettore.classList.remove("is-aperto");
+      trigger.setAttribute("aria-expanded", "false");
+      if (riportaFocus) trigger.focus();
+    };
+    const apri = () => {
+      elenco.hidden = false;
+      selettore.classList.add("is-aperto");
+      trigger.setAttribute("aria-expanded", "true");
+    };
+    const imposta = (scelta, comunica) => {
+      const opzione = opzioni.find((item) => item.getAttribute("data-incontro-valore") === scelta);
+      input.value = opzione ? scelta : "";
+      valore.textContent = opzione ? scelta : "Scegli una modalità";
+      selettore.classList.toggle("is-scelto", !!opzione);
+      opzioni.forEach((item) => item.setAttribute("aria-selected", String(item === opzione)));
+      if (comunica) input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+
+    sincronizzaIncontro = () => imposta(input.value, false);
+    sincronizzaIncontro();
+
+    trigger.addEventListener("click", () => {
+      if (elenco.hidden) apri();
+      else chiudi(false);
+    });
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        apri();
+        (opzioni.find((item) => item.getAttribute("aria-selected") === "true") || opzioni[0]).focus();
+      }
+    });
+    elenco.addEventListener("click", (e) => {
+      const opzione = e.target.closest("[data-incontro-valore]");
+      if (!opzione) return;
+      imposta(opzione.getAttribute("data-incontro-valore"), true);
+      chiudi(true);
+    });
+    elenco.addEventListener("keydown", (e) => {
+      const corrente = e.target.closest("[data-incontro-valore]");
+      if (!corrente) return;
+      const indice = opzioni.indexOf(corrente);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        opzioni[(indice + (e.key === "ArrowDown" ? 1 : opzioni.length - 1)) % opzioni.length].focus();
+      }
+      if (e.key === "Escape") chiudi(true);
+    });
+    document.addEventListener("click", (e) => {
+      if (!selettore.contains(e.target)) chiudi(false);
+    });
+  }
+
+  function montaPrenotazione() {
+    const prenotazione = $("[data-prenotazione]");
+    const disponibilita = $("#f-disponibilita");
+    const giorno = $("#f-giorno");
+    if (!prenotazione || !disponibilita || !giorno) return;
+
+    const fasce = $$('[data-orario]', prenotazione);
+    const dataMinima = new Date();
+    const dueCifre = (numero) => String(numero).padStart(2, "0");
+    giorno.min =
+      dataMinima.getFullYear() + "-" +
+      dueCifre(dataMinima.getMonth() + 1) + "-" +
+      dueCifre(dataMinima.getDate());
+
+    const aggiorna = (orario) => {
+      if (orario !== undefined) {
+        fasce.forEach((fascia) => fascia.setAttribute("aria-pressed", String(fascia.getAttribute("data-orario") === orario)));
+      }
+      const scelta = fasce.find((fascia) => fascia.getAttribute("aria-pressed") === "true");
+      disponibilita.value = giorno.value && scelta ? giorno.value + "T" + scelta.getAttribute("data-orario") : "";
+    };
+    sincronizzaPrenotazione = () => aggiorna();
+
+    giorno.addEventListener("input", () => {
+      aggiorna();
+      mostraErroreCampo("disponibilita", "");
+    });
+    prenotazione.addEventListener("click", (e) => {
+      const fascia = e.target.closest("[data-orario]");
+      if (!fascia) return;
+      aggiorna(fascia.getAttribute("data-orario"));
+      mostraErroreCampo("disponibilita", "");
     });
   }
 
@@ -288,7 +419,6 @@
       campo.removeAttribute("required");
       campo.setAttribute("aria-required", "true");
     });
-
     if (chiaveMancante()) {
       console.warn(
         "[FR Studio] Web3Forms access key non impostata. " +
@@ -298,6 +428,8 @@
     }
 
     montaModalita();
+    montaPrenotazione();
+    montaSelettoreIncontro();
     impostaModalita(0);
 
     // Pulisce l'errore mentre si corregge il campo
@@ -306,6 +438,11 @@
         mostraErroreCampo(e.target.id.slice(2), "");
       }
     });
+    form.addEventListener("reset", () => requestAnimationFrame(() => {
+      $$('[data-orario]', form).forEach((fascia) => fascia.setAttribute("aria-pressed", "false"));
+      sincronizzaPrenotazione();
+      sincronizzaIncontro();
+    }));
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -313,13 +450,14 @@
       const valori = leggiModulo();
       const errori = validaModulo(valori);
 
-      ["attivita", "referente", "telefono", "email", "privacy"].forEach((n) =>
+      ["attivita", "referente", "telefono", "email", "disponibilita", "incontro", "privacy"].forEach((n) =>
         mostraErroreCampo(n, errori[n] || "")
       );
 
       const primoErrore = Object.keys(errori)[0];
       if (primoErrore) {
-        const campo = $("#f-" + primoErrore);
+        const campo = primoErrore === "incontro" ? $("#f-incontro-trigger") :
+          primoErrore === "disponibilita" ? $("#f-giorno") : $("#f-" + primoErrore);
         if (campo) campo.focus();
         return;
       }
@@ -421,7 +559,23 @@
    */
   function collegaAvanzamento() {
     const barra = $("[data-scroll-bar]");
-    if (!barra || riduciMovimento) return;
+    const sourceLuogo = $("[data-scroll-source]");
+    const targetImpresa = $("[data-scroll-target]");
+
+    if (!barra && !sourceLuogo && !targetImpresa) return;
+
+    if (riduciMovimento) {
+      if (barra) barra.style.transform = "scaleX(1)";
+      if (sourceLuogo) sourceLuogo.style.opacity = "0";
+      if (targetImpresa) {
+        targetImpresa.style.opacity = "1";
+        targetImpresa.style.color = "var(--verde-pino)";
+        targetImpresa.style.fontWeight = "700";
+        targetImpresa.style.transform = "translateX(0)";
+      }
+      return;
+    }
+
     if (window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()")) return;
 
     let inCoda = false;
@@ -429,7 +583,45 @@
       const doc = document.documentElement;
       const percorribile = doc.scrollHeight - doc.clientHeight;
       const quota = percorribile > 0 ? doc.scrollTop / percorribile : 0;
-      barra.style.transform = "scaleX(" + quota + ")";
+      const quotaClamped = Math.max(0, Math.min(1, quota));
+
+      if (barra) {
+        barra.style.transform = "scaleX(" + quotaClamped + ")";
+      }
+
+      if (sourceLuogo) {
+        if (quotaClamped <= 0.02) {
+          sourceLuogo.style.opacity = "1";
+          sourceLuogo.style.transform = "translateX(0)";
+        } else if (quotaClamped < 0.2) {
+          const opacita = (1 - (quotaClamped - 0.02) / 0.18).toFixed(2);
+          sourceLuogo.style.opacity = opacita;
+          sourceLuogo.style.transform = "translateX(-" + ((1 - opacita) * 10).toFixed(1) + "px)";
+        } else {
+          sourceLuogo.style.opacity = "0";
+          sourceLuogo.style.transform = "translateX(-10px)";
+        }
+      }
+
+      if (targetImpresa) {
+        if (quotaClamped < 0.7) {
+          targetImpresa.style.opacity = "0";
+          targetImpresa.style.transform = "translateX(8px)";
+        } else {
+          const opacita = ((quotaClamped - 0.7) / 0.3).toFixed(2);
+          targetImpresa.style.opacity = opacita;
+          targetImpresa.style.transform = "translateX(" + ((1 - opacita) * 8).toFixed(1) + "px)";
+
+          if (quotaClamped > 0.88) {
+            targetImpresa.style.color = "var(--verde-pino)";
+            targetImpresa.style.fontWeight = "700";
+          } else {
+            targetImpresa.style.color = "";
+            targetImpresa.style.fontWeight = "";
+          }
+        }
+      }
+
       inCoda = false;
     };
 
@@ -453,6 +645,22 @@
     if (typeof window.frTraccia === "function") window.frTraccia(evento);
   }
 
+  function collegaTornaInCima() {
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest('a[href="#top"]');
+      if (!link) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: riduciMovimento ? "auto" : "smooth"
+      });
+      if (history.pushState) {
+        history.pushState(null, "", window.location.pathname + window.location.search);
+      }
+    });
+  }
+
   function collegaTracciamento() {
     document.addEventListener("click", (e) => {
       const link = e.target.closest("a[href]");
@@ -463,10 +671,55 @@
     });
   }
 
+  function collegaSplashIntro() {
+    if (riduciMovimento) return;
+
+    let splash = $("#splash-intro");
+    if (!splash && R && typeof R.splashIntro === "function") {
+      const container = document.createElement("div");
+      container.innerHTML = R.splashIntro();
+      splash = container.firstElementChild;
+      document.body.appendChild(splash);
+    }
+
+    if (!splash) return;
+
+    // Reset scroll immediato
+    window.scrollTo(0, 0);
+
+    let giaChiuso = false;
+    const chiudi = () => {
+      if (giaChiuso) return;
+      giaChiuso = true;
+      splash.classList.add("is-uscito");
+      window.scrollTo(0, 0);
+      
+      setTimeout(() => {
+        if (splash && splash.parentNode) {
+          splash.style.display = "none";
+        }
+        window.scrollTo(0, 0);
+      }, 780);
+    };
+
+    splash.addEventListener("click", chiudi);
+    setTimeout(chiudi, 2100);
+  }
+
   /* ============================================================== 7. AVVIO */
 
   function avvia() {
     try {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+      }, 50);
+      // collegaSplashIntro(); — animazione di apertura rimossa
       controllaMontaggio();
       misuraHeader();
       collegaProgetti();
@@ -474,6 +727,7 @@
       collegaModulo();
       collegaAnimazioni();
       collegaAvanzamento();
+      collegaTornaInCima();
       collegaTracciamento();
     } catch (err) {
       // Meglio un sito senza fronzoli che un sito con del testo invisibile.

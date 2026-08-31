@@ -12,8 +12,8 @@
 <!-- Titolo, descrizione, canonical, Open Graph e dati strutturati: scritti da build.js -->
 {{HEAD}}
 
-<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="icon" href="assets/img/icon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icon.png">
 
 <!-- Caratteri ospitati qui: nessuna richiesta a Google, una connessione in meno
      da aprire prima di poter disegnare il testo. -->
@@ -26,7 +26,6 @@
      riassestarla (0,25 di CLS su rete lenta, contro 0,00 così). Vedi la nota
      in cima a site.css. -->
 <link rel="stylesheet" href="assets/css/site.css">
-
 <!-- Marca la pagina come "JavaScript attivo" prima del primo disegno, così gli
      elementi da animare partono già nascosti e non si vedono comparire due volte.
      Il controllo su IntersectionObserver evita di nascondere del testo a un
@@ -35,14 +34,11 @@
 </head>
 <body>
 
-<div class="banner-anteprima" role="region" aria-label="Stato demo">ANTEPRIMA — Demo non definitiva</div>
-
 <a class="skip-link" href="#contenuto">Salta al contenuto</a>
 
 <div class="wrap">
 
   <header class="site-header" id="top" data-mount="header"></header>
-  <div class="scroll-progress" aria-hidden="true"><span data-scroll-bar></span></div>
 
   <main id="contenuto">
 
@@ -55,25 +51,26 @@
     <!-- SERVIZI -->
     <section class="sezione" id="servizi" data-sezione data-mount="servizi" aria-labelledby="servizi-titolo"></section>
 
-    <!-- PREZZI -->
-    <section class="sezione" id="prezzi" data-sezione data-mount="prezzi" aria-labelledby="prezzi-titolo"></section>
+    <!-- PERCHE NOI -->
+    <section class="sezione" id="perche-noi" data-sezione data-mount="perche-noi" aria-labelledby="perche-noi-titolo"></section>
 
     <!-- ANTEPRIMA PROGETTI -->
     <section class="sezione" id="progetti" data-sezione data-mount="progetti" aria-labelledby="progetti-titolo"></section>
 
-    <!-- CHI TI RISPONDE -->
-    <section class="sezione sezione--chi-siamo" id="chi-siamo" data-sezione data-mount="chi-siamo" aria-label="Chi ti risponde"></section>
-
     <!-- DOMANDE FREQUENTI -->
     <section class="sezione" id="faq" data-sezione data-mount="faq" aria-labelledby="faq-titolo"></section>
 
+    <!-- CHIARIMENTI RAPIDI -->
+    <section class="sezione" id="chiarimenti" data-sezione data-mount="contatti-intro" aria-labelledby="contatti-titolo"></section>
+
+    <!-- CHI TI RISPONDE -->
+    <section class="sezione sezione--chi-siamo" id="chi-siamo" data-sezione data-mount="chi-siamo" aria-label="Chi ti risponde"></section>
+
     <!-- CONTATTI -->
-    <section class="sezione" id="contatti" data-sezione aria-labelledby="contatti-titolo">
-      <div class="contatti">
-
-        <div class="contatti__intro" data-mount="contatti-intro"></div>
-
+    <section class="sezione" id="contatti" data-sezione aria-labelledby="prenota-titolo">
+      <div class="contatti contatti--solo-form">
         <div class="contatti__form">
+          <h2 class="sezione__titolo sezione__titolo--stretto" id="prenota-titolo">Parliamone cinque minuti.</h2>
 
           <!-- =================================================================
                MODULO SERVERLESS WEB3FORMS
@@ -125,6 +122,47 @@
               <input class="campo__input" id="f-email" name="email" type="email"
                      inputmode="email" autocomplete="email" placeholder="info@latuaattivita.it">
               <span class="campo__errore" data-errore="email" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <span class="campo__label" id="f-disponibilita-label">Quando preferisci incontrarci? *</span>
+              <input id="f-disponibilita" name="disponibilita" type="hidden" required>
+              <div class="prenotazione" data-prenotazione aria-labelledby="f-disponibilita-label">
+                <label class="prenotazione__giorno" for="f-giorno">
+                  <span class="prenotazione__step">1. Scegli il giorno</span>
+                  <input id="f-giorno" type="date" required aria-describedby="f-disponibilita-aiuto">
+                </label>
+                <div class="prenotazione__orario">
+                  <span class="prenotazione__step">2. Scegli l'orario</span>
+                  <div class="prenotazione__fasce" role="group" aria-label="Orario preferito">
+                    <button type="button" data-orario="09:00" aria-pressed="false">09:00</button>
+                    <button type="button" data-orario="12:00" aria-pressed="false">12:00</button>
+                    <button type="button" data-orario="15:00" aria-pressed="false">15:00</button>
+                    <button type="button" data-orario="18:00" aria-pressed="false">18:00</button>
+                  </div>
+                </div>
+              </div>
+              <small class="campo__aiuto" id="f-disponibilita-aiuto">Ti ricontatteremo per confermare l'appuntamento.</small>
+              <span class="campo__errore" data-errore="disponibilita" role="alert"></span>
+            </div>
+
+            <div class="campo">
+              <span class="campo__label" id="f-incontro-label">Preferisci di persona o online (Meet)? *</span>
+              <input id="f-incontro" name="incontro" type="hidden" required>
+              <div class="selettore-incontro" data-incontro-select>
+                <button class="selettore-incontro__trigger" id="f-incontro-trigger" type="button"
+                        aria-labelledby="f-incontro-label f-incontro-valore" aria-haspopup="listbox"
+                        aria-expanded="false" aria-controls="f-incontro-opzioni">
+                  <span id="f-incontro-valore">Scegli una modalità</span>
+                  <span class="selettore-incontro__icona" aria-hidden="true"></span>
+                </button>
+                <div class="selettore-incontro__opzioni" id="f-incontro-opzioni" role="listbox"
+                     aria-labelledby="f-incontro-label" hidden>
+                  <button type="button" role="option" aria-selected="false" data-incontro-valore="Di persona">Di persona</button>
+                  <button type="button" role="option" aria-selected="false" data-incontro-valore="Online su Meet">Online su Meet</button>
+                </div>
+              </div>
+              <span class="campo__errore" data-errore="incontro" role="alert"></span>
             </div>
 
             <div class="campo">
@@ -186,6 +224,8 @@
 <script src="assets/js/dati.js" defer></script>
 <script src="assets/js/render.js" defer></script>
 <script src="assets/js/app.js" defer></script>
+<script src="assets/js/three.min.js" defer></script>
+<script src="assets/js/pixel-blast.js" defer></script>
 
 </body>
 </html>
