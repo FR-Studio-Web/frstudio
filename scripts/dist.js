@@ -43,10 +43,6 @@ const ESTENSIONI = [".css", ".js", ".woff2", ".png", ".svg", ".jpg", ".jpeg", ".
 // quest'ultimo che le pagine caricano.
 const SORGENTI = ["assets/js/data.js"];
 
-// Serve solo finché il sito di prova sta su workers.dev: tiene la copia fuori
-// dai motori di ricerca, così non compete con il dominio vero.
-const HEADERS = "/*\n  X-Robots-Tag: noindex, nofollow\n";
-
 /* ------------------------------------------------------------------ copia */
 
 const copiati = [];
@@ -77,9 +73,6 @@ fs.mkdirSync(USCITA, { recursive: true });
 fs.readdirSync(RADICE).filter(paginaGenerata).forEach(copia);
 FILE_RADICE.filter((f) => fs.existsSync(path.join(RADICE, f))).forEach(copia);
 percorriAssets("assets");
-
-fs.writeFileSync(path.join(USCITA, "_headers"), HEADERS);
-copiati.push("_headers");
 
 /* -------------------------------------------------- controlli prima di uscire */
 
