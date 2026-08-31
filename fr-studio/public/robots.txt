@@ -1,0 +1,8 @@
+# Generato da build.js: non modificare a mano.
+User-agent: *
+Allow: /
+
+# Sorgenti delle immagini: pubblicati, ma non c'è motivo di indicizzarli
+Disallow: /scripts/
+
+Sitemap: https://www.frstudioweb.it/sitemap.xml
