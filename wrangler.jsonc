@@ -1,0 +1,28 @@
+{
+  // FR STUDIO — Worker di soli file statici.
+  //
+  // Non c'è codice da eseguire: nessun "main", solo una cartella da servire.
+  // Cloudflare la prende da dist/, che NON sta nel repository — la ricostruisce
+  // a ogni push con il comando qui sotto (vedi scripts/dist.js).
+  //
+  // GitHub Pages continua a pubblicare la radice del repository per conto suo:
+  // le due cose non si toccano.
+  "name": "fr-studio",
+  "compatibility_date": "2026-08-31",
+
+  // Prima le pagine (build.js), poi la cartella da pubblicare (scripts/dist.js).
+  // Sta qui e non solo nella dashboard così che anche `wrangler deploy` lanciato
+  // a mano parta sempre da file appena generati.
+  "build": {
+    "command": "npm run build:cf"
+  },
+
+  "assets": {
+    "directory": "./dist",
+
+    // Come fa GitHub Pages: un indirizzo inesistente mostra 404.html invece
+    // della pagina di errore di Cloudflare. Senza, il sito si comporterebbe
+    // diversamente sui due host.
+    "not_found_handling": "404-page"
+  }
+}

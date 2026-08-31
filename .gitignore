@@ -1,4 +1,9 @@
 node_modules/
+
+# Cartella pubblicata su Cloudflare: la ricostruisce il build a ogni push
+# (npm run build:cf). Fuori dal repository anche per non farla finire
+# duplicata su GitHub Pages, che serve la radice cosi com'e.
+dist/
 .DS_Store
 Thumbs.db
 *.log

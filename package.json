@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "build": "node build.js",
+    "dist": "node scripts/dist.js",
+    "build:cf": "npm run build && npm run dist",
     "dev": "node server.js",
     "start": "node server.js",
     "fonts": "node scripts/scarica-font.js",
